@@ -18,8 +18,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/counter': (context) => const CalculatorPage(),
+        '/': (context) => const CalculatorPage(),
       },
+      debugShowCheckedModeBanner: false,
     );
   }
 }

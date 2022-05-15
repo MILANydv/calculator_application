@@ -1,4 +1,6 @@
+import 'package:calculator_application/buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 class CalculatorPage extends StatefulWidget {
   const CalculatorPage({Key? key}) : super(key: key);
@@ -8,53 +10,188 @@ class CalculatorPage extends StatefulWidget {
 }
 
 class _CalculatorPageState extends State<CalculatorPage> {
+  var userInput = '';
+
+  var answer = '';
+
+  // Array of button
+  final List<String> buttons = [
+    'C',
+    '+/-',
+    '%',
+    'DEL',
+    '7',
+    '8',
+    '9',
+    '/',
+    '4',
+    '5',
+    '6',
+    'x',
+    '1',
+    '2',
+    '3',
+    '-',
+    '0',
+    '.',
+    '=',
+    '+',
+  ];
+
+  // function to calculate the input operation
+  void equalPressed() {
+    String finaluserinput = userInput;
+    finaluserinput = userInput.replaceAll('x', '*');
+
+    Parser p = Parser();
+    Expression exp = p.parse(finaluserinput);
+    ContextModel cm = ContextModel();
+    double eval = exp.evaluate(EvaluationType.REAL, cm);
+    answer = eval.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Calculator'),
       ),
       body: Column(
         children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height * 0.3,
-            padding: EdgeInsets.symmetric(
-              vertical: MediaQuery.of(context).size.height * 0.08,
-              horizontal: MediaQuery.of(context).size.width * 0.02,
-            ),
+          Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(
-                  height: 20.0,
-                  child: ListView(
-                    reverse: true,
-                    scrollDirection: Axis.horizontal,
-                    children: const [],
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    userInput,
+                    style: const TextStyle(
+                        fontSize: 30,
+                        color: Color.fromARGB(255, 252, 247, 247)),
                   ),
                 ),
-                const SizedBox(height: 10.0),
+                const Divider(
+                  thickness: 2,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(15),
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    answer,
+                    style: const TextStyle(
+                        fontSize: 40,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
               ],
             ),
           ),
           Expanded(
-            child: Container(
-              width: double.infinity,
-              color: Colors.grey[200],
-              child: GridView.count(
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(15.0),
-                crossAxisSpacing: 5.0,
-                childAspectRatio: 1.3,
-                mainAxisSpacing: 5.0,
-                crossAxisCount: 4,
-              ),
-            ),
+            flex: 3,
+            child: GridView.builder(
+                itemCount: buttons.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4),
+                itemBuilder: (BuildContext context, int index) {
+                  // Clear Button
+                  if (index == 0) {
+                    return MyButton(
+                      buttontapped: () {
+                        setState(() {
+                          userInput = '';
+                          answer = '0';
+                        });
+                      },
+                      buttonText: buttons[index],
+                      color: Colors.blue[50],
+                      textColor: Colors.black,
+                    );
+                  }
+
+                  // +/- button
+                  else if (index == 1) {
+                    return MyButton(
+                      buttonText: buttons[index],
+                      color: Colors.blue[50],
+                      textColor: Colors.black,
+                    );
+                  }
+                  // % Button
+                  else if (index == 2) {
+                    return MyButton(
+                      buttontapped: () {
+                        setState(() {
+                          userInput += buttons[index];
+                        });
+                      },
+                      buttonText: buttons[index],
+                      color: Colors.blue[50],
+                      textColor: Colors.black,
+                    );
+                  }
+                  // Delete Button
+                  else if (index == 3) {
+                    return MyButton(
+                      buttontapped: () {
+                        setState(() {
+                          userInput =
+                              userInput.substring(0, userInput.length - 1);
+                        });
+                      },
+                      buttonText: buttons[index],
+                      color: Colors.blue[50],
+                      textColor: Colors.black,
+                    );
+                  }
+                  // Equal_to Button
+                  else if (index == 18) {
+                    return MyButton(
+                      buttontapped: () {
+                        setState(() {
+                          equalPressed();
+                        });
+                      },
+                      buttonText: buttons[index],
+                      color: Colors.orange[700],
+                      textColor: Colors.white,
+                    );
+                  }
+
+                  //  other buttons
+                  else {
+                    return MyButton(
+                      buttontapped: () {
+                        setState(() {
+                          userInput += buttons[index];
+                        });
+                      },
+                      buttonText: buttons[index],
+                      color: isOperator(buttons[index])
+                          ? Colors.blueAccent
+                          : Colors.white,
+                      textColor: isOperator(buttons[index])
+                          ? Colors.white
+                          : Colors.black,
+                    );
+                  }
+                }),
           ),
         ],
       ),
     );
   }
+
+  bool isOperator(String x) {
+    if (x == '/' || x == 'x' || x == '-' || x == '+' || x == '=') {
+      return true;
+    }
+    return false;
+  }
+
+//
+
 }
